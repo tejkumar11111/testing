@@ -1,4 +1,4 @@
-name: Build Docker Image (No Push)
+name: Build Docker Image 
 
 on:
   workflow_dispatch
@@ -25,5 +25,5 @@ jobs:
         with:
           context: .
           file: ./Dockerfile
-          push: false
-          tags: my-python-app:latest
+          push: True
+          tags: tejkumar11111/my-python-app:latest
