@@ -81,14 +81,27 @@ jobs:
         echo "=== APP DIRECTORY CONTENTS ==="
         ls -al $GITHUB_WORKSPACE/${{ github.event.inputs.app }}
 
+    # - name: Build Docker image
+    #   if: ${{ github.event.inputs.build == 'true' }}
+    #   uses: docker/build-push-action@v5
+    #   with:
+    #     context: .
+    #     file: $GITHUB_WORKSPACE/${{ github.event.inputs.app }}/Dockerfile
+    #     push: True
+    #     tags: tejkumar11111/my-python-app:${{ env.TAG_NAME }}
     - name: Build Docker image
       if: ${{ github.event.inputs.build == 'true' }}
-      uses: docker/build-push-action@v5
-      with:
-        context: .
-        file: $GITHUB_WORKSPACE/${{ github.event.inputs.app }}/Dockerfile
-        push: True
-        tags: tejkumar11111/my-python-app:${{ env.TAG_NAME }}
+      run: |
+        cd $GITHUB_WORKSPACE/${{ github.event.inputs.app }}
+        ls
+        docker build -t tejkumar11111/my-python-app:${{ env.TAG_NAME }} .
+        
+    - name: Push Docker image to GCR
+      if: ${{ github.event.inputs.push == 'true' }}
+      run: |
+       docker push tejkumar11111/my-python-app:${{ env.TAG_NAME }}
+
+
 
     # - name: Push Docker image to GCR
     #   if: ${{ github.event.inputs.push == 'true' }}
