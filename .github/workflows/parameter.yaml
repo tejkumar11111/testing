@@ -9,7 +9,7 @@ on:
         default: 'app1'
         type: choice
         options:
-          - app1
+          - ui
           - app2
           - app3
           - app4
