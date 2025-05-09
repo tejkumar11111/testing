@@ -14,6 +14,11 @@ on:
           - app3
           - app4
           - app5
+      tag: 
+        description: 'Provide TAG Name'
+        required: true
+        default: 'parm3'
+       
       build:
         description: 'Build the image?'
         required: true
@@ -35,7 +40,7 @@ env:
   HELM_CHART_PATH: ./helm-chart
   APP_DIR: ./${{ github.event.inputs.app }}
   IMAGE_NAME: gcr.io/${{ secrets.GCP_PROJECT_ID }}/${{ github.event.inputs.app }}
-  TAG_NAME: param2
+  TAG_NAME: ${{ github.event.inputs.tag }}
 
 
 jobs:
