@@ -69,7 +69,7 @@ jobs:
       uses: docker/build-push-action@v5
       with:
         context: .
-        file: ${{ env.APP_DIR }}/Dockerfile
+        file: $GITHUB_WORKSPACE/${{ env.APP_DIR }}/Dockerfile
         push: True
         tags: tejkumar11111/my-python-app:${{ env.TAG_NAME }}
 
