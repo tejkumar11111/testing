@@ -35,7 +35,7 @@ env:
   HELM_CHART_PATH: ./helm-chart
   APP_DIR: ./apps/${{ github.event.inputs.app }}
   IMAGE_NAME: gcr.io/${{ secrets.GCP_PROJECT_ID }}/${{ github.event.inputs.app }}
-  TAG_NAME: param
+  TAG_NAME: param1
 
 jobs:
   main:
@@ -59,6 +59,7 @@ jobs:
         password: ${{ secrets.DOCKER_PASSWORD }}
 
     - name: Build Docker image
+      if: ${{ github.event.inputs.build == 'true' }}
       uses: docker/build-push-action@v5
       with:
         context: .
