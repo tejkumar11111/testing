@@ -33,7 +33,7 @@ env:
   GKE_ZONE: us-central1-c
   HELM_RELEASE_NAME: ${{ github.event.inputs.app }}-release
   HELM_CHART_PATH: ./helm-chart
-  APP_DIR: ./ui/${{ github.event.inputs.app }}
+  APP_DIR: ./${{ github.event.inputs.app }}
   IMAGE_NAME: gcr.io/${{ secrets.GCP_PROJECT_ID }}/${{ github.event.inputs.app }}
   TAG_NAME: param2
 
