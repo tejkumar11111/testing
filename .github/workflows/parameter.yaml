@@ -10,7 +10,7 @@ on:
         type: choice
         options:
           - ui
-          - app2
+          - agent
           - app3
           - app4
           - app5
