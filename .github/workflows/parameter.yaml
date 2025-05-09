@@ -1,0 +1,78 @@
+name: Build, Push and Deploy to GKE
+
+on:
+  workflow_dispatch:
+    inputs:
+      app:
+        description: 'Select the app to build/push/deploy'
+        required: true
+        default: 'app1'
+        type: choice
+        options:
+          - app1
+          - app2
+          - app3
+          - app4
+          - app5
+      build:
+        description: 'Build the image?'
+        required: true
+        default: 'true'
+      push:
+        description: 'Push the image?'
+        required: true
+        default: 'true'
+      deploy:
+        description: 'Deploy to GKE?'
+        required: true
+        default: 'true'
+
+env:
+  PROJECT_ID: ${{ secrets.GCP_PROJECT_ID }}
+  GKE_CLUSTER: my-gke-cluster
+  GKE_ZONE: us-central1-c
+  HELM_RELEASE_NAME: ${{ github.event.inputs.app }}-release
+  HELM_CHART_PATH: ./helm-chart
+  APP_DIR: ./apps/${{ github.event.inputs.app }}
+  IMAGE_NAME: gcr.io/${{ secrets.GCP_PROJECT_ID }}/${{ github.event.inputs.app }}
+
+jobs:
+  main:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v3
+
+    - name: Authenticate to Google Cloud
+      uses: google-github-actions/auth@v1
+      with:
+        credentials_json: ${{ secrets.GCP_SA_KEY }}
+
+    - name: Configure Docker for GCR
+      if: ${{ github.event.inputs.build == 'true' || github.event.inputs.push == 'true' }}
+      run: gcloud auth configure-docker
+
+    - name: Build Docker image
+      if: ${{ github.event.inputs.build == 'true' }}
+      run: |
+        docker build -t ${{ env.IMAGE_NAME }}:${{ github.sha }} ${{ env.APP_DIR }}
+
+    - name: Push Docker image to GCR
+      if: ${{ github.event.inputs.push == 'true' }}
+      run: |
+        docker push ${{ env.IMAGE_NAME }}:${{ github.sha }}
+
+    - name: Set up GKE credentials
+      if: ${{ github.event.inputs.deploy == 'true' }}
+      uses: google-github-actions/get-gke-credentials@v1
+      with:
+        cluster_name: ${{ env.GKE_CLUSTER }}
+        location: ${{ env.GKE_ZONE }}
+
+    - name: Deploy using Helm
+      if: ${{ github.event.inputs.deploy == 'true' }}
+      run: |
+        helm upgrade --install ${{ env.HELM_RELEASE_NAME }} ${{ env.HELM_CHART_PATH }} \
+          --set image.repository=${{ env.IMAGE_NAME }} \
+          --set image.tag=${{ github.sha }}
