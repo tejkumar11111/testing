@@ -79,14 +79,14 @@ jobs:
         ls -al $GITHUB_WORKSPACE
         echo
         echo "=== APP DIRECTORY CONTENTS ==="
-        ls -al $GITHUB_WORKSPACE/apps/${{ github.event.inputs.app }}
+        ls -al $GITHUB_WORKSPACE/${{ github.event.inputs.app }}
 
     - name: Build Docker image
       if: ${{ github.event.inputs.build == 'true' }}
       uses: docker/build-push-action@v5
       with:
         context: .
-        file: $GITHUB_WORKSPACE/${{ env.APP_DIR }}/Dockerfile
+        file: $GITHUB_WORKSPACE/${{ github.event.inputs.app }}/Dockerfile
         push: True
         tags: tejkumar11111/my-python-app:${{ env.TAG_NAME }}
 
