@@ -28,26 +28,55 @@ jobs:
 
           if [ "$mode" == "full" ]; then
             apps="$all_apps"
-            echo "✅ Full mode: building all apps."
+            echo " Full mode: building all apps."
           else
             # Compare with the previous commit to find changed files
             previous_commit=$(git rev-parse HEAD~1)
             latest_commit=$(git rev-parse HEAD)
 
-            echo "🔍 Checking changes between $previous_commit and $latest_commit"
+            echo " Checking changes between $previous_commit and $latest_commit"
 
             changed_app_display=$(git diff --name-only $previous_commit $latest_commit)
 
             echo "changed_app_display:  $changed_app_display"
 
-            changed_apps=$(git diff --name-only $previous_commit $latest_commit | cut -d/ -f1 | sort -u) 
+          #   changed_apps=$(git diff --name-only $previous_commit $latest_commit | cut -d/ -f1 | sort -u) 
 
-            if [ -z "$changed_apps" ]; then
-              echo "🚫 No app changes detected."
-              apps=""
+          #   if [ -z "$changed_apps" ]; then
+          #     echo "No app changes detected."
+          #     apps=""
+          #   else
+          #     apps="$changed_apps"
+          #     echo " Incremental mode: changed apps = $apps"
+          #   fi
+          # fi
+
+          # echo "apps=$apps" >> $GITHUB_ENV
+
+            echo " Checking changes between $previous_commit and $latest_commit"
+
+            # Get all changed top-level folders
+            changed_folders=$(git diff --name-only $previous_commit $latest_commit | cut -d/ -f1 | sort -u)
+
+            echo "Changed top-level folders: $changed_folders"
+
+            # Filter only known app folders and exclude .github
+            changed_apps=""
+            for folder in $changed_folders; do
+              if [[ "$folder" != ".github" && "$folder" != "" ]]; then
+                if echo "$all_apps" | grep -qw "$folder"; then
+                  changed_apps="$changed_apps $folder"
+                fi
+              fi
+            done
+
+            # Trim whitespace
+            apps=$(echo "$changed_apps" | xargs)
+
+            if [ -z "$apps" ]; then
+              echo "No app changes detected."
             else
-              apps="$changed_apps"
-              echo "✅ Incremental mode: changed apps = $apps"
+              echo "Incremental mode: changed apps = $apps"
             fi
           fi
 
