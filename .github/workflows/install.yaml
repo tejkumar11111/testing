@@ -1,0 +1,40 @@
+name: install
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  trivy-hadolint:
+    runs-on: ubuntu-latest
+
+    steps:
+      # Checkout the repository
+      - name: Checkout repository
+        uses: actions/checkout@v2
+
+      # Install Trivy
+      - name: Install Trivy
+        run: |
+          curl -sfL https://github.com/aquasecurity/trivy/releases/download/v0.34.0/trivy_0.34.0_Linux-64bit.deb -o trivy.deb
+          sudo dpkg -i trivy.deb
+
+      # Install Hadolint
+      - name: Install Hadolint
+        run: |
+          curl -sfL https://github.com/hadolint/hadolint/releases/download/v2.9.0/hadolint-Linux-x86_64 -o /usr/local/bin/hadolint
+          sudo chmod +x /usr/local/bin/hadolint
+
+      # Run Trivy to scan Docker image (replace `my-image:latest` with your actual image)
+      - name: Run Trivy Scan
+        run: |
+          trivy image --no-progress my-image:latest
+
+      # Run Hadolint to lint Dockerfile
+      - name: Run Hadolint
+        run: |
+          hadolint Dockerfile
