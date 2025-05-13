@@ -1,9 +1,9 @@
 name: Build Docker Image (No Push)
 
-on:
-  push:
-    branches:
-      - main  # Or whichever branch you want
+# on:
+#   push:
+#     branches:
+#       - main  # Or whichever branch you want
 
 jobs:
   build:
