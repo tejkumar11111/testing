@@ -29,7 +29,12 @@ jobs:
             echo "Building and deploying all apps."
           elif [ "$mode" == "incremental" ]; then
             # Get all changed apps (based on last commit)
-            changed_apps=$(git diff --name-only HEAD^ HEAD | grep '^app[0-9]\+/' | cut -d/ -f1 | sort -u | uniq)
+            latest_commit=$(git rev-parse HEAD)
+            previous_commit=$(git rev-parse HEAD~1)
+            changed_files=$(git diff --name-only $previous_commit $latest_commit)
+            # changed_apps=$(git diff --name-only HEAD^ HEAD | grep '^app[0-9]\+/' | cut -d/ -f1 | sort -u | uniq)
+            changed_apps=$(echo "$changed_files" | grep '^app[0-9]\+/' | cut -d/ -f1 | sort -u | uniq)
+
             if [ -z "$changed_apps" ]; then
               echo "No changes detected in any app."
               apps=""  # Set apps to empty if no changes
