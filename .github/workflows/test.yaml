@@ -62,14 +62,14 @@ jobs:
             docker push myregistry/$app:latest
           done
 
-      - name: Deploy apps (example step)
-        run: |
-          if [ -n "$apps" ]; then
-            echo "🚀 Deploying the apps: $apps"
-            for app in $apps; do
-              echo "Deploying $app"
-              # Replace with actual deployment commands per app, e.g., kubectl apply -f k8s/$app.yaml
-            done
-          else
-            echo "🚫 No apps to deploy."
-          fi
+      # - name: Deploy apps (example step)
+      #   run: |
+      #     if [ -n "$apps" ]; then
+      #       echo "🚀 Deploying the apps: $apps"
+      #       for app in $apps; do
+      #         echo "Deploying $app"
+      #         # Replace with actual deployment commands per app, e.g., kubectl apply -f k8s/$app.yaml
+      #       done
+      #     else
+      #       echo "🚫 No apps to deploy."
+      #     fi
