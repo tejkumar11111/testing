@@ -36,6 +36,10 @@ jobs:
 
             echo "🔍 Checking changes between $previous_commit and $latest_commit"
 
+            changed_app_display=$(git diff --name-only $previous_commit $latest_commit)
+
+            echo "changed_app_display:  $changed_app_display"
+
             changed_apps=$(git diff --name-only $previous_commit $latest_commit | \
               grep -E '^app[1-9]/' | \
               cut -d/ -f1 | \
