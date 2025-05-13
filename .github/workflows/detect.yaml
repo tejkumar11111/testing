@@ -40,10 +40,7 @@ jobs:
 
             echo "changed_app_display:  $changed_app_display"
 
-            changed_apps=$(git diff --name-only $previous_commit $latest_commit | \
-              grep -E '^app[1-9]/' | \
-              cut -d/ -f1 | \
-              sort -u)
+            changed_apps=$(git diff --name-only $previous_commit $latest_commit | cut -d/ -f1 | sort -u) 
 
             if [ -z "$changed_apps" ]; then
               echo "🚫 No app changes detected."
