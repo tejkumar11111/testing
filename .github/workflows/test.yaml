@@ -32,13 +32,14 @@ jobs:
             changed_apps=$(git diff --name-only HEAD^ HEAD | grep '^app[0-9]\+/' | cut -d/ -f1 | sort -u | uniq)
             if [ -z "$changed_apps" ]; then
               echo "No changes detected in any app."
+              apps=""  # Set apps to empty if no changes
             else
               apps="$changed_apps"
             fi
           fi
 
           echo "Apps to build: $apps"
-          echo "apps=$apps" >> $GITHUB_OUTPUT
+          echo "apps=$apps" >> $GITHUB_ENV  # Set the apps variable for the next steps
 
       - name: Build Docker images
         run: |
@@ -52,13 +53,13 @@ jobs:
           fi
 
       - name: Push Docker images (optional)
-        if: ${{ steps.detect_apps.outputs.apps != '' }}
+        if: ${{ env.apps != '' }}
         env:
           DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
           DOCKER_PASSWORD: ${{ secrets.DOCKER_PASSWORD }}
         run: |
           echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_USERNAME" --password-stdin
-          for app in ${{ steps.detect_apps.outputs.apps }}; do
+          for app in ${{ env.apps }}; do
             docker push myregistry/$app:latest
           done
 
