@@ -1,0 +1,75 @@
+name: Build and Deploy Apps (Incremental & Full)
+
+on:
+  workflow_dispatch:
+    inputs:
+      mode:
+        description: 'Select build mode: "incremental" or "full"'
+        required: true
+        default: 'incremental'
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 0  # Ensure full commit history for diff to work
+
+      - name: Detect changed apps (incremental) or select all (full)
+        id: detect_apps
+        run: |
+          mode="${{ github.event.inputs.mode }}"
+          echo "Selected mode: $mode"
+
+          all_apps="agent ui"
+
+          if [ "$mode" == "full" ]; then
+            apps="$all_apps"
+            echo "✅ Full mode: building all apps."
+          else
+            # Compare with the previous commit to find changed files
+            previous_commit=$(git rev-parse HEAD~1)
+            latest_commit=$(git rev-parse HEAD)
+
+            echo "🔍 Checking changes between $previous_commit and $latest_commit"
+
+            changed_apps=$(git diff --name-only $previous_commit $latest_commit | \
+              grep -E '^app[1-9]/' | \
+              cut -d/ -f1 | \
+              sort -u)
+
+            if [ -z "$changed_apps" ]; then
+              echo "🚫 No app changes detected."
+              apps=""
+            else
+              apps="$changed_apps"
+              echo "✅ Incremental mode: changed apps = $apps"
+            fi
+          fi
+
+          echo "apps=$apps" >> $GITHUB_ENV
+
+      - name: Build Docker images
+        if: ${{ env.apps != '' }}
+        run: |
+          for app in $apps; do
+            echo "🔨 Building image for $app"
+            docker build -t myregistry/$app:latest $app
+          done
+
+      - name: Push Docker images
+        if: ${{ env.apps != '' }}
+        env:
+          DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
+          DOCKER_PASSWORD: ${{ secrets.DOCKER_PASSWORD }}
+        run: |
+          echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_USERNAME" --password-stdin
+          for app in $apps; do
+            echo "📤 Pushing $app to registry"
+            docker push myregistry/$app:latest
+          done
+
+
