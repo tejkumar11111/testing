@@ -1,4 +1,4 @@
-name: Build and Deploy Apps (Incremental & Full)
+name: Buildanddeploy
 
 on:
   workflow_dispatch:
