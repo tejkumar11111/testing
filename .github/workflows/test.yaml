@@ -46,7 +46,8 @@ jobs:
           if [ -n "$apps" ]; then
             for app in $apps; do
               echo "🔨 Building Docker image for $app"
-              docker build -t myregistry/$app:latest $app
+              cd $GITHUB_WORKSPACE/$apps
+              docker build -t tejkumar11111/$app:latest .
             done
           else
             echo "🚫 No apps to build."
