@@ -87,7 +87,7 @@ jobs:
         run: |
           for app in $apps; do
             echo "🔨 Building image for $app"
-            docker build -t tejkumar1111/$app:latest $app
+            docker build -t tejkumar11111/$app:latest $app
           done
 
       - name: Push Docker images
@@ -99,7 +99,7 @@ jobs:
           echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_USERNAME" --password-stdin
           for app in $apps; do
             echo "📤 Pushing $app to registry"
-            docker push tejkumar1111/$app:latest
+            docker push tejkumar11111/$app:latest
           done
 
 
